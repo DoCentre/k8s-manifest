@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+            - name: MYSQL_DATABASE
+              value: docentre
+            - name: MYSQL_USER
+              value: my_user
+            - name: MYSQL_PASSWORD
+              value: my_password
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+          livenessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docentre-app-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docentre-app
+  template:
+    metadata:
+      labels:
+        app: docentre-app
+    spec:
+      containers:
+        - name: docentre-app-container
+          image: ghcr.io/lohsuan/docentre-app:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 10m
+              memory: 10Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "8080"
+            - name: DB_URL
+              value: "my_user:my_password@tcp(docentre-db-clusterip:3306)/docentre?charset=utf8mb4&parseTime=True&loc=Local"
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+
+# ---
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: docentre-ui-deploy
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: docentre-ui
+#   template:
+#     metadata:
+#       labels:
+#         app: docentre-ui
+#     spec:
+#       containers:
+#         - name: docentre-ui-container
+#           image: ghcr.io/lohsuan/docentre-ui:latest
+#           ports:
+#             - containerPort: 3000
+#           resources:
+#             requests:
+#               cpu: 10m
+#               memory: 10Mi
+#             limits:
+#               cpu: 200m
+#               memory: 200Mi
+#           livenessProbe:
+#             tcpSocket:
+#               port: 3000
+#             initialDelaySeconds: 15
+#             periodSeconds: 20
