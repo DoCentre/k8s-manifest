@@ -159,9 +159,11 @@ spec:
               value: "smtp.gmail.com"
             - name: SMTP_PORT
               value: "587"
-            - name: EMAIL_SENDER
+            - name: SENDER_EMAIL
               value:
-            - name: EMAIL_PASSWORD
+            - name: AUTH_EMAIL
+              value:
+            - name: AUTH_PASSWORD
               value:
             - name: DOC_URL_TMPL
               value: "http://localhost/approveDoc/%d"
