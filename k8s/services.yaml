@@ -1,6 +1,45 @@
 apiVersion: v1
 kind: Service
 metadata:
+  name: docentre-frontend-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    app: docentre-frontend
+  ports:
+    - protocol: TCP
+      port: 5173
+      targetPort: 5173
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docentre-oauth-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    app: docentre-oauth
+  ports:
+    - protocol: TCP
+      port: 5273
+      targetPort: 5273
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docentre-backend-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    app: docentre-backend
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: docentre-db-clusterip
 spec:
   type: ClusterIP
@@ -10,33 +49,3 @@ spec:
     - protocol: TCP
       port: 3306
       targetPort: 3306
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: docentre-app-clusterip # the frontend endpoint to connect backend is docentre-app-clusterip
-spec:
-  type: ClusterIP
-  selector:
-    app: docentre-app
-  ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 8080
-
-# ---
-
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: docentre-ui-clusterip
-# spec:
-#   type: ClusterIP
-#   selector:
-#     app: docentre-ui
-#   ports:
-#     - protocol: TCP
-#       port: 3000
-#       targetPort: 3000
