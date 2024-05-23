@@ -6,17 +6,10 @@ spec:
   rules:
     - http:
         paths:
-          - path: /api
+          - path: /
             pathType: Prefix
             backend:
               service:
-                name: docentre-app-clusterip 
+                name: docentre-frontend-clusterip
                 port:
-                  number: 8080
-          # - path: /view
-          #   pathType: Prefix
-          #   backend:
-          #     service:
-          #       name: docentre-ui-clusterip 
-          #       port:
-          #         number: 3000
+                  number: 5173
