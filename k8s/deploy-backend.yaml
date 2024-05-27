@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docentre-backend-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docentre-backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  
+  template:
+    metadata:
+      labels:
+        app: docentre-backend
+    spec:
+      containers:
+        - name: docentre-backend-container
+          image: ghcr.io/docentre/docentre-backend:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 10m
+              memory: 10Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
+          env:
+            - name: PORT
+              value: "8080"
+            - name: DB_URL
+              value: "my_user:my_password@tcp(docentre-db-clusterip:3306)/docentre?charset=utf8mb4&parseTime=True&loc=Local"
+            - name: SMTP_HOST
+              value: "smtp.gmail.com"
+            - name: SMTP_PORT
+              value: "587"
+            - name: SENDER_EMAIL
+              value:
+            - name: AUTH_EMAIL
+              value: 
+            - name: AUTH_PASSWORD
+              value: 
+            - name: DOC_URL_TMPL
+              value: "http://localhost/approveDoc/%d"
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
