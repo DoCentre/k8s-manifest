@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docentre-frontend-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docentre-frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: docentre-frontend
+    spec:
+      containers:
+        - name: docentre-frontend-container
+          image: ghcr.io/docentre/docentre-frontend:latest
+          ports:
+            - containerPort: 5173
+          resources:
+            requests:
+              cpu: 10m
+              memory: 10Mi
+            limits:
+              cpu: 1000m
+              memory: 1000Mi
+          env:
+            - name: VUE_APP_HOST
+              value:
+            - name: VUE_APP_API_HOST
+              value: docentre-backend-clusterip
+            - name: VUE_APP_OAUTH_HOST
+              value: docentre-oauth-clusterip
+            - name: VUE_APP_GOOGLE_CLIENT_ID
+              value: 
+          livenessProbe:
+            tcpSocket:
+              port: 5173
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docentre-frontend-oauth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docentre-oauth
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: docentre-oauth
+    spec:
+      containers:
+        - name: docentre-oauth-container
+          image: ghcr.io/docentre/docentre-oauth:latest
+          ports:
+            - containerPort: 5273
+          resources:
+            requests:
+              cpu: 10m
+              memory: 10Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
+          livenessProbe:
+            tcpSocket:
+              port: 5273
+            initialDelaySeconds: 15
+            periodSeconds: 20
